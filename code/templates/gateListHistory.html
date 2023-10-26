@@ -1,0 +1,35 @@
+<!--This will show the entire gates history list-->
+<h2>Gate List:</h2>
+        <table>
+            <!--Titles of each column-->
+            <thead style="display: block">
+                <tr>
+                <th style="background-color: #6699ff" 
+                width="200">ID</th>
+                <th style="background-color: #6699ff"
+                width="200">Location</th>
+                <th style="background-color: #6699ff"
+                width="200">Secret</th>
+                <th style="background-color: #6699ff" 
+                width="200">Number of Activations</th>
+                <th style="background-color: #6699ff" 
+                width="200">Number of Failed attempts</th>
+                </tr>
+            </thead>
+            <ul>
+                <!--Iterates over every element in the dict-->
+                {% for j in range(0,size) %}
+                    <tbody style="display: block">
+                    <tr>
+                        <!--Shows each gates information-->
+                        <td style="background-color: #b3b3ff" width="200" align="center" >{{accesses['data['~j~'][id]']}}</td>
+                        <td style="background-color: #b3b3ff" width="200" align="center">{{accesses['data['~j~'][location]']}}</td>
+                        <td style="background-color: #b3b3ff" width="200" align="center">{{accesses['data['~j~'][secret]']}}</td>
+                        <td style="background-color: #b3b3ff" width="200" align="center">{{accesses['data['~j~'][n_activations]']}}</td>
+                        <td style="background-color: #b3b3ff" width="200" align="center">{{accesses['data['~j~'][failed_attempts]']}}</td>
+                    </tr>
+                    </tbody>
+                {% endfor %}
+            </ul>
+        </table>
+   

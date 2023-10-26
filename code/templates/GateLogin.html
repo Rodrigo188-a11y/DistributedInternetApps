@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+    <!--This html validates the secret and ID of the gate-->
+    <head>
+        <title>User Web App</title>
+        <script type = "text/javascript" src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js">
+        </script>        
+        <script type = "text/javascript" language = "javascript">
+            // Function responsible for the validation of the gate
+            function validateGate(){
+                // The .one() event is placed so that multiple data submit is prevented
+                $("#validateForm").one("submit",function(e) {
+                    e.preventDefault(); // avoid to execute the actual submit of the form.
+                    // Get the values from the form
+                    var gateID = document.getElementById("gateID").value;
+                    var secret =document.getElementById("secret").value;
+                    // Gets the information if the secret + gateID match
+                    $.ajax({
+                        type: "GET",
+                        url: "http://127.0.0.1:8002/gates/verify",
+                        data: {"gateID":gateID,"secret":secret},
+                        success: function(data){
+                            document.getElementById("validateForm").reset();
+                            console.log(data);
+                            // If the information matches redirects to the webpage with the QRcode scanner
+                            if(data == "True"){
+                                alert("Gate Validated")
+                                window.location.replace("http://127.0.0.1:8000/gates?gateID=" + gateID);
+                            }
+                            else{
+                                // If the information it's wrong stays in the same page and asks for the information again
+                                document.getElementById("validateForm").reset();
+                                alert("Wrong gateID or secret. Try again.")
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert("error")
+                            console.log(status);
+                            if ( status == "error" ) {
+                                var msg = "Sorry but there was an error: ";
+                                $("#error").html( msg + xhr.status + " " + xhr.statusText );
+                                document.getElementById("validateForm").reset();
+                            }
+                        }
+                    });
+                });
+            }
+            // Event that handles the gate validation
+            $(document).ready( function () {              
+               validateGate()
+            });
+        </script>
+    </head>
+
+    <body>
+        <p>Gate Web App</p>
+        <!--Form that hols gateID + secret values to get request from gatedata.py-->       
+        <div class = "form">
+            <form id = "validateForm">
+                <div class = "name"> 
+                    <p>Gate ID:</p>
+                    <p></p>
+                    <input id="gateID" name="gateID" rows="1" cols="12" type="number" required="required" min="0">
+                </div>
+                <div class = "location"> 
+                    <p>Gate secret:</p>
+                    <p></p>
+                    <input id="secret" name="secret" rows="1" cols="12" type = "text" required = "required">
+                </div>
+                <p></p>
+                <input id = "submitRegister" type="submit">
+            </form>
+        </div>
+    </body>
+</html>

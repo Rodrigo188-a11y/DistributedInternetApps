@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>User Web App</title>
+        <script type = "text/javascript" src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js">
+        </script>  
+        <script type = "text/javascript" language = "javascript">
+            // This function is called by the RegisterButton and will create a new gate on the gatedata.py
+            function registerNewGate(){
+                // The main buttons are hidden
+                $("#button1").hide();
+                $("#button2").hide();
+                $("#button3").hide();
+                // The for shows up
+                $("#registerForm").show();
+                // The .one() event is placed so that multiple data submit is prevented
+                $("#registerForm").one("submit",function(e) {
+                    e.preventDefault(); // avoid to execute the actual submit of the form.
+                    // Get the values from the form
+                    var gateID = document.getElementById("gateID").value;
+                    var location =document.getElementById("gateLocation").value;
+                    // Sends information to service
+                    $.ajax({
+                        type: "POST",
+                        url: "http://127.0.0.1:8002/gates/admin",
+                        data: {"gateID":gateID,"gateLocation":location},
+                        success: function(response){
+                            console.log(response);
+                            alert(response);
+                            // Clears form values, hides the form and shows main button
+                            document.getElementById("registerForm").reset();
+                            $("#registerForm").hide();
+                            $("#button1").show();
+                            $("#button2").show();
+                            $("#button3").show();
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(status);
+                            if ( status == "error" ) {
+                                var msg = "Sorry but there was an error: ";
+                                $("#error").html( msg + xhr.status + " " + xhr.statusText );
+                                // Clears form values, hides the form and shows main button
+                                document.getElementById("registerForm").reset();
+                                $("#registerForm").hide();
+                                $("#button1").show();
+                                $("#button2").show();
+                                $("#button3").show();
+                            }
+                        }
+                    });
+                });
+            }
+            // Function that gets all gate data from gatedata.py
+            function showExistingGates(){
+                $("#button1").hide();
+                $("#button2").hide();
+                $("#button3").hide();
+                // Get request from service.py
+                $.ajax({
+                    url: "http://127.0.0.1:8002/gates/admin",
+                    type: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        console.log(data);
+                        $(function(){
+                            // Redirects for a endpoint that renders "gateListHistory.html" and loads it to #RegisterInformation
+                            $("#RegisterInformation").load("/gates/list",$.param({"data":data}),function( response, status, xhr ) {
+                                console.log(status);
+                                if ( status == "error" ) {
+                                    var msg = "Sorry but there was an error: ";
+                                    $("#error").html( msg + xhr.status + " " + xhr.statusText );
+                                }
+                            });
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(status);
+                        if ( status == "error" ) {
+                            var msg = "Sorry but there was an error: ";
+                            $("#error").html( msg + xhr.status + " " + xhr.statusText );
+                        }
+                    }
+                });
+                // Shows the information about the gates and a Previous page button
+                $("#RegisterInformation").show();
+                $("#button5").show();
+            }
+            // Function that deletes gates from gatedata,py
+            function DeleteGates(){
+                $("#button1").hide();
+                $("#button2").hide();
+                $("#button3").hide();
+                // Shows the form to get the data
+                $("#deleteForm").show();
+                // The .one() event is placed so that multiple data submit is prevented
+                $("#deleteForm").one("submit",function(e) {
+                    e.preventDefault(); // avoid to execute the actual submit of the form.
+                    // Get the values from the form
+                    var gateID = document.getElementById("gateID_2").value;
+                    // Post request to a endpoint with the gate info, which in return will send a delete request
+                    $.ajax({
+                        type: "POST",
+                        url: "http://127.0.0.1:8000/admin/deleter",
+                        data: {"gateID":gateID},
+                        success: function(response){
+                            console.log(response);
+                            // Sends a response that informs the gate was deleted successful and restes the buttons 
+                            alert(response);
+                            document.getElementById("deleteForm").reset();
+                            $("#deleteForm").hide();
+                            $("#button1").show();
+                            $("#button2").show();
+                            $("#button3").show();
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(status);
+                            if ( status == "error" ) {
+                                var msg = "Sorry but there was an error: ";
+                                $("#error").html( msg + xhr.status + " " + xhr.statusText );
+                                $("#deleteForm").hide();
+                                $("#button1").show();
+                                $("#button2").show();
+                                $("#button3").show();
+                            }
+                        }
+                    });
+                });
+            }
+            // Receives username from Fenix Oauth
+            var username = '{{username}}'
+            // Handles the events when the document is all loaded
+            $(document).ready( function () { 
+                // Hides buttons and forms
+                $("#RegisterInformation").hide();
+                $("#registerForm").hide();
+                $("#deleteForm").hide();
+                $("#button5").hide();
+                // Handles the register gate event
+                $("#button1").click( function() {
+                    registerNewGate();
+                });
+                // Handles the list history gate event
+                $("#button2").click(function(){
+                    showExistingGates();
+                });
+                // Handles the delete gates event
+                $("#button3").click(function(){
+                    DeleteGates();
+                });
+                // Previous button that goes back after showing gates list history
+                $("#button5").click(function(){
+                    $("#button5").hide();
+                    $("#RegisterInformation").hide();
+                    $("#button1").show();
+                    $("#button2").show();
+                    $("#button3").show();
+                });
+            });
+        </script>
+    </head>
+
+    <body>
+        <p>Admin Web App</p>    
+        <!--Form That holds values to Register a gate-->   
+        <div class = "form">
+            <form id = "registerForm">
+                <div class = "name"> 
+                    <p>Gate ID:</p>
+                    <p></p>
+                    <input id="gateID" name="gateID" rows="1" cols="12" type="number" required="required" min="0">
+                </div>
+                <div class = "location"> 
+                    <p>Gate Location:</p>
+                    <p></p>
+                    <input id="gateLocation" name="gateLocation" rows="1" cols="12" type = "text" required = "required">
+                </div>
+                <p></p>
+                <input id = "submitRegister" type="submit">
+            </form>
+        </div>
+        <!--Form That holds values to Delete a gate-->  
+        <div class="form">
+            <form id = "deleteForm">
+                <div class = "name"> 
+                    <p>Gate ID:</p>
+                    <p></p>
+                    <input id="gateID_2" name="gateID_2" rows="1" cols="12" type="number" required="required" min="0">
+                </div>
+                <p></p>
+                <input id = "submit" type="submit">
+            </form>
+        </div>
+        <!--Button that holds the event to Register a gate-->  
+        <div id ="button1"><button class="ui button" id="RegisterButton">Register New Gate</button></div>
+        <!--Button that holds the event to show gates history-->
+        <div id ="button2"><button class="ui button" id="ShowButton">Show Existing Gates</button></div>
+        <!--Button that holds the event to Delete a gate-->
+        <div id ="button3"><button class="ui button" id="DeleteButton">Delete Gates</button></div>
+        <!--Holds gate history list information-->
+        <div id="RegisterInformation"></div>
+        <!--Button that holds the event to go to the previous page-->
+        <div id ="button5"><button class="ui button" id="PreviousButton">Previous Page</button></div>
+    </body>
+</html>
